@@ -80,52 +80,62 @@ mobileStyle.textContent = `
             let snowInterval;
             
 function createMobileSnowflake() {
-    if (activeSnowflakes >= MAX_SNOW_MOBILE) return;
+    if (activeSnowflakes >= 15) return; // Увеличили с 8 до 15
     
     const snowflake = document.createElement('div');
     snowflake.className = 'snowflake';
     
-    // УПРОЩЕННЫЙ размер - ВСЕ снежинки одинаковые
-    const size = 5; // Фиксированный размер вместо Math.random()
+    // Больше размер для мобильных
+    const size = Math.random() * 6 + 4; // 4-10px
     
     snowflake.style.cssText = `
         width: ${size}px;
         height: ${size}px;
         left: ${Math.random() * 100}vw;
-        opacity: ${Math.random() * 0.7 + 0.3};
-        background: rgba(255,255,255,0.9);
+        opacity: ${Math.random() * 0.8 + 0.2};
+        background: white;
         border-radius: 50%;
-        position: absolute;
-        top: -10px;
+        position: fixed; /* ВАЖНО: fixed вместо absolute */
+        top: -30px;
         pointer-events: none;
-        box-shadow: 0 0 4px rgba(255,255,255,0.8); /* Упрощенная тень */
-        z-index: 99;
+        box-shadow: 0 0 8px white;
+        z-index: 100;
         will-change: transform;
         backface-visibility: hidden;
+        transform: translateZ(0);
     `;
     
-    // УПРОЩЕННАЯ анимация через CSS класс
-    snowflake.style.animation = `fall ${15 + Math.random() * 10}s linear infinite`;
+    // Быстрее анимация: 8-15 секунд
+    const duration = 8 + Math.random() * 7;
+    const xMove = (Math.random() * 50 - 25); // -25px до +25px
+    snowflake.style.setProperty('--x-move', `${xMove}px`);
+    snowflake.style.animation = `fall ${duration}s linear infinite`;
     
     snowContainer.appendChild(snowflake);
     activeSnowflakes++;
     
-    // Удаляем через нормальное время
+    // Удаляем после анимации
     setTimeout(() => {
         if (snowflake.parentNode) {
-            snowflake.remove();
-            activeSnowflakes--;
+            snowflake.style.opacity = '0';
+            snowflake.style.transition = 'opacity 0.5s';
+            setTimeout(() => {
+                if (snowflake.parentNode) {
+                    snowflake.remove();
+                    activeSnowflakes--;
+                }
+            }, 500);
         }
-    }, 25000); // 25 секунд
+    }, duration * 1000);
 }
             
             // Создаем снег реже на мобильных
-            snowInterval = setInterval(createMobileSnowflake,  600);
+            snowInterval = setInterval(createMobileSnowflake,  400);
             
             // Создать начальные снежинки
             setTimeout(() => {
                 for (let i = 0; i < 3; i++) { // Было 5, стало 3
-                    setTimeout(createMobileSnowflake, i * 150);
+                    setTimeout(createMobileSnowflake, i * 80);
                 }
             }, 300);
             
